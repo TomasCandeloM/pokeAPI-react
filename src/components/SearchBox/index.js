@@ -1,12 +1,15 @@
 import React from "react";
+import {ReactComponent as Search} from "../../assets/search.svg";
+import SearchInput from "./searchinput";
+import "./index.css";
 
-import Search from "./components/searchBox/searchBox";
+const SearchBox = ({onSearch}) => {
+    return (
+        <div className="barra-busqueda">
+            <Search  className="icono-busqueda"/>
+            <SearchInput className="input-busqueda" onChange={onSearch}/>
+        </div>
+    );
+};
 
-export default function App() {
-  return (
-    <div className="App">
-      <Search />
-
-    </div>
-  );
-}
+export default SearchBox;
