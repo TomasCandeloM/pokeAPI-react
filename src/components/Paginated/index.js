@@ -1,32 +1,36 @@
 import React from "react";
-import "./index.css";
 
-const Paginated = ({page, setPage, total}) => {
-    const handleNext = () => {
-        if (page < total) {
-            setPage(page + 1);
-        }
-    };
+import { useFiltersContext } from "../../Context/filtersCtx";
+import './index.css';
 
-    const handlePrevious = () => {
-        if (page > 0) {
-            setPage(page - 1);
-        }
-    };
+const Paginated = ({ total }) => {
+  const { filters, setFilters } = useFiltersContext();
+  const { page } = filters;
+  const handlePrevius = () => {
+    if (page > 0) {
+      setFilters({ ...filters, page: page - 1 });
+    }
+  };
 
-    return (
-        <div className="paginated-wrapper">
-          <div className="paginated-container">
-            <button onClick={handlePrevious} disabled={page === 0}>
-              Previous
-            </button>
-            <span>{page + 1}</span>
-            <button onClick={handleNext} disabled={page === total - 1}>
-              Next
-            </button>
-          </div>
-        </div>
-      );
+  const handleNext = () => {
+    if (page < total) {
+      setFilters({ ...filters, page: page + 1 });
+    }
+  };
+
+  return (
+    <div className="paginated-wrapper">
+      <div className="paginated-container">
+        <button onClick={handlePrevius} disabled={page === 0}>
+          Previous
+        </button>
+        <span>{page + 1}</span>
+        <button onClick={handleNext} disabled={page === total - 1}>
+          Next
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default Paginated;

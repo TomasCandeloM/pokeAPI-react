@@ -9,6 +9,9 @@ import {
   RouterProvider
 } from 'react-router-dom';
 
+import {PokemonProvider} from './Context/pokemonctx';
+import {FiltersProvider} from './Context/filtersCtx';
+
 const router = createBrowserRouter([
   {
     path: '/',
@@ -23,7 +26,11 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <PokemonProvider>
+      <FiltersProvider>
+        <RouterProvider router={router} />
+      </FiltersProvider>
+    </PokemonProvider>
   </React.StrictMode>
 );
 
