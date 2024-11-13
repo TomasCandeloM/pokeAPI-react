@@ -1,44 +1,53 @@
-import React, { useEffect, useState } from "react";
-import '../pages/ListPokemon/index.css';
+import React, { useEffect, useState, lazy, Suspense } from "react";
+import { useInView } from "react-intersection-observer";
+import "../pages/ListPokemon/index.css";
 
-const ListPokemonPresentation = ({ pokemons, loading, page, setPage, totalPages }) => {
-    // Estados para cargar los componentes de forma dinámica
-    const [SearchBox, setSearchBox] = useState(null);
-    const [PokemonCard, setPokemonCard] = useState(null);
-    const [Paginated, setPaginated] = useState(null);
+const LazySearchBox = lazy(() => import("../components/SearchBox"));
+const LazyPaginated = lazy(() => import("../components/Paginated"));
 
-    useEffect(() => {
-        // Cargar dinámicamente SearchBox
-        import('../components/SearchBox').then((module) => {
-            setSearchBox(() => module.default);
-        });
-        // Cargar dinámicamente PokemonCard
-        import('../components/PokemonCard').then((module) => {
-            setPokemonCard(() => module.default);
-        });
-        // Cargar dinámicamente Paginated
-        import('../components/Paginated').then((module) => {
-            setPaginated(() => module.default);
-        });
-    }, []);
+const ListPokemonPresentation = ({
+  pokemons,
+  loading,
+  page,
+  setPage,
+  totalPages,
+}) => {
+  const [PokemonCard, setPokemonCard] = useState(null);
+  const [ref, inView] = useInView({ triggerOnce: true });
 
-    // Asegurarse de que todos los componentes estén cargados antes de renderizar
-    if (!SearchBox || !PokemonCard || !Paginated) {
-        return <p>Loading components...</p>;
+  useEffect(() => {
+    if (inView && !PokemonCard) {
+      import("../components/PokemonCard").then((module) => {
+        setPokemonCard(() => module.default);
+      });
     }
+  }, [inView, PokemonCard]);
 
-    return (
-        <div className="App">
-            <SearchBox />
-            {loading && <p>Loading...</p>}
-            <div className="pokedex">
-                {!loading && pokemons.map((pokemon, index) => (
-                    <PokemonCard key={pokemon.id} pokemon={pokemon} />
-                ))}
+  return (
+    <div className="App">
+      <Suspense fallback={<p>Loading SearchBox...</p>}>
+        <LazySearchBox />
+      </Suspense>
+      {loading && <p>Loading...</p>}
+      <div className="pokedex">
+        {!loading &&
+          pokemons.map((pokemon) => (
+            <div key={pokemon.id} ref={ref} className="pokemon">
+              <Suspense fallback={<p>Loading PokemonCard...</p>}>
+                {React.createElement(
+                  React.lazy(() => import("../components/PokemonCard")),
+                  { pokemon }
+                )}
+              </Suspense>
             </div>
-            <Paginated page={page} setPage={setPage} total={totalPages} />
-        </div>
-    );
+          ))}
+      </div>
+
+      <Suspense fallback={<p>Loading Paginated...</p>}>
+        <LazyPaginated page={page} setPage={setPage} total={totalPages} />
+      </Suspense>
+    </div>
+  );
 };
 
 export default ListPokemonPresentation;
